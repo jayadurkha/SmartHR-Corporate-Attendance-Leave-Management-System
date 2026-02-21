@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leave Request</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h4>Submit Leave Request</h4>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Name -->
+            <div class="mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <!-- Department -->
+            <div class="mb-3">
+                <label>Department</label>
+                <select name="department" class="form-control" required>
+                    <option value="">Select Department</option>
+                    <option value="IT">IT</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="HR">HR</option>
+                    <option value="Finance">Finance</option>
+                </select>
+            </div>
+
+            <!-- From Date -->
+            <div class="mb-3">
+                <label>From Date</label>
+                <input type="date" name="from_date" class="form-control" required>
+            </div>
+
+            <!-- To Date -->
+            <div class="mb-3">
+                <label>To Date</label>
+                <input type="date" name="to_date" class="form-control" required>
+            </div>
+
+            <!-- Reason -->
+            <div class="mb-3">
+                <label>Reason</label>
+                <textarea name="reason" class="form-control" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Submit Request
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

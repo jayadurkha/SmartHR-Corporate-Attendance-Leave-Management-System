@@ -1,0 +1,340 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AstraLuna Technologies</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .stat-card {
+            border-radius: 12px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card {
+            border-radius: 12px;
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm px-4">
+    <div class="container-fluid">
+
+        <span class="navbar-brand fw-semibold">
+            🏢 AstraLuna Technologies
+        </span>
+
+        <div class="d-flex align-items-center gap-2">
+
+            {% if role %}
+            <span class="badge bg-warning text-dark px-3 py-2">
+                {{ role }}
+            </span>
+            {% endif %}
+
+            {% if role == "Admin" or role == "HR" %}
+            <a href="{% url 'manage_leaves' %}" class="btn btn-info btn-sm">
+                📋 Manage Leaves
+            </a>
+            {% endif %}
+
+            {% if role == "Admin" %}
+            <a href="/admin/" class="btn btn-warning btn-sm">
+                Admin Panel
+            </a>
+            {% endif %}
+
+            <form action="{% url 'logout' %}" method="post" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">
+                    Logout
+                </button>
+            </form>
+
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">
+            Welcome,
+            {% if leave_requests %}
+                {{ request.user.employee_profile.first_name }}
+                {{ request.user.employee_profile.last_name }}
+            {% else %}
+                {{ request.user.username }}
+            {% endif %}
+        </h2>
+        <p class="text-muted">SmartHR – Corporate Attendance & Leave Management System</p>
+    </div>
+
+    <!-- MESSAGES -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success text-center shadow-sm">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- LEAVE REQUEST BUTTON -->
+    {% if leave_requests %}
+    <div class="text-center mb-4">
+        <a href="{% url 'leave_request' %}" class="btn btn-warning px-4">
+            📝 Send Leave Request
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- LEAVE REQUEST STATUS -->
+    {% if leave_requests %}
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-light fw-bold">
+            My Leave Requests
+        </div>
+
+        <div class="card-body">
+            <table class="table table-bordered text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leave_requests %}
+                    <tr>
+                        <td>{{ leave.from_date }}</td>
+                        <td>{{ leave.to_date }}</td>
+                        <td>{{ leave.reason }}</td>
+                        <td>
+                            {% if leave.status == "Approved" %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif leave.status == "Rejected" %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AI INSIGHT -->
+    <div class="alert alert-info text-center shadow-sm mb-4">
+        <strong>AI Insight:</strong> {{ ai_message }}
+    </div>
+
+    <!-- DATE FILTER -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            <form method="GET">
+                <div class="row justify-content-center g-2">
+                    <div class="col-md-4">
+                        <input type="date" name="date"
+                               value="{{ selected_date|date:'Y-m-d' }}"
+                               class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="row g-4 text-center mb-5">
+
+        <div class="col-md-3">
+            <div class="card stat-card shadow bg-primary text-white p-4">
+                <h6>Total Employees</h6>
+                <h2>{{ total_employees|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card shadow bg-dark text-white p-4">
+                <h6>Total Departments</h6>
+                <h2>{{ total_departments|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card stat-card shadow bg-success text-white p-4">
+                <h6>Present</h6>
+                <h3>{{ present_count|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card stat-card shadow bg-danger text-white p-4">
+                <h6>Absent</h6>
+                <h3>{{ absent_count|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card stat-card shadow bg-warning text-dark p-4">
+                <h6>Late</h6>
+                <h3>{{ late_count|default:0 }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ATTENDANCE TABLE -->
+    <div class="card shadow mb-5">
+        <div class="card-body">
+            <h5 class="mb-3 fw-semibold">Attendance Records</h5>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_records %}
+                        <tr>
+                            <td>
+                                {{ record.employee.first_name }}
+                                {{ record.employee.last_name }}
+                            </td>
+                            <td>{{ record.employee.email|default:"N/A" }}</td>
+                            <td>{{ record.employee.phone|default:"N/A" }}</td>
+                            <td>{{ record.employee.department.name }}</td>
+                            <td class="text-center">
+                                {% if record.status == "Present" %}
+                                    <span class="badge bg-success">Present</span>
+                                {% elif record.status == "Absent" %}
+                                    <span class="badge bg-danger">Absent</span>
+                                {% elif record.status == "Late" %}
+                                    <span class="badge bg-warning text-dark">Late</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Unknown</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ record.date }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No records found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- LINE CHART -->
+    <div class="card shadow mb-5">
+        <div class="card-body">
+            <h5 class="mb-3 fw-semibold">30-Day Attendance Trend</h5>
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+
+    <!-- PIE CHART -->
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h5 class="mb-3 fw-semibold">Attendance Distribution</h5>
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    new Chart(document.getElementById('attendanceChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Present', 'Absent', 'Late'],
+            datasets: [{
+                data: [
+                    {{ present_count|default:0 }},
+                    {{ absent_count|default:0 }},
+                    {{ late_count|default:0 }}
+                ],
+                backgroundColor: ['#198754', '#dc3545', '#ffc107']
+            }]
+        }
+    });
+
+    new Chart(document.getElementById("lineChart"), {
+        type: "line",
+        data: {
+            labels: {{ labels|default:"[]"|safe }},
+            datasets: [
+                {
+                    label: "Present",
+                    data: {{ present_data|default:"[]"|safe }},
+                    borderColor: "#198754",
+                    fill: false
+                },
+                {
+                    label: "Absent",
+                    data: {{ absent_data|default:"[]"|safe }},
+                    borderColor: "#dc3545",
+                    fill: false
+                },
+                {
+                    label: "Late",
+                    data: {{ late_data|default:"[]"|safe }},
+                    borderColor: "#ffc107",
+                    fill: false
+                }
+            ]
+        }
+    });
+</script>
+  
+
+<footer class="text-center py-4 mt-5 bg-dark text-white">
+    <small> © 2026 AstraLuna Technologies. All rights reserved.</small>
+</footer>
+</body>
+</html>

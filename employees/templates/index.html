@@ -1,0 +1,135 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Corporate Attendance Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <h2 class="text-center mb-4">AI Smart Corporate Attendance Dashboard</h2>
+
+                                                <!-- Date Filter -->
+    <form method="GET" class="mb-4">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+
+                                             <!-- Dashboard Cards -->
+    <div class="row text-center g-3">
+
+        <div class="col-md-3">
+            <div class="card shadow bg-primary text-white p-3">
+                <h6>Total Employees</h6>
+                <h3>{{ total_employees }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow bg-dark text-white p-3">
+                <h6>Total Departments</h6>
+                <h3>{{ total_departments }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow bg-success text-white p-3">
+                <h6>Present</h6>
+                <h3>{{ present_count }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow bg-danger text-white p-3">
+                <h6>Absent</h6>
+                <h3>{{ absent_count }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow bg-warning text-dark p-3">
+                <h6>Late</h6>
+                <h3>{{ late_count }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <hr class="my-5">
+
+                                                    <!-- Chart Section -->
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card shadow p-4">
+                <h5 class="text-center mb-3">Attendance Distribution</h5>
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+                                                  <!-- Attendance Table -->
+    <h4>Attendance Records ({{ selected_date }})</h4>
+
+    <table class="table table-bordered table-striped mt-3 shadow">
+        <thead class="table-dark">
+            <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in recent_attendance %}
+            <tr>
+                <td>{{ record.employee }}</td>
+                <td>{{ record.date }}</td>
+                <td>
+                    {% if record.status == "Present" %}
+                        <span class="badge bg-success">Present</span>
+                    {% elif record.status == "Absent" %}
+                        <span class="badge bg-danger">Absent</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Late</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">No records found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+
+<script>
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: 
+        {
+            labels: ['Present', 'Absent', 'Late'],
+            datasets: [{
+            data: [ Number("{{ present_count }}"),Number("{{ absent_count }}"),Number("{{ late_count }}")],                
+            backgroundColor: ['#198754', '#dc3545', '#ffc107']}]
+        }
+    });
+</script>
+
+
+</body>
+</html> -->
